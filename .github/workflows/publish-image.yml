@@ -3,30 +3,34 @@ name: Publish Purple Agent Image
 on:
   push:
     branches: ['main']
+  workflow_dispatch: # Para poder lanzarlo manual si quieres
 
 env:
   REGISTRY: ghcr.io
+  # Usamos la variable automática de GitHub
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push-image:
+  build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
 
     steps:
-      - name: Checkout repository
+      - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-      - name: Log in to the Container registry
+      - name: 🔐 Log in to the Container registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
+      # ESTE PASO ES LA MAGIA:
+      # Calcula los tags y asegura que el nombre esté en MINÚSCULAS (vital para Docker)
+      - name: 🏷️ Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -34,10 +38,13 @@ jobs:
           tags: |
             type=raw,value=latest
 
-      - name: Build and push Docker image
+      - name: 🐳 Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
+          # Como usamos la variable dinámica, usamos ./Dockerfile por defecto
+          file: ./Dockerfile
           push: true
+          # Aquí usamos el resultado del paso de metadata (automático y limpio)
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
