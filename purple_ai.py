@@ -409,21 +409,35 @@ def main():
     session = requests.Session()
     LEVEL_TO_PLAY = "1"  # Playable levels 1...6
     
-    print(f"🟣 Connecting AI Agent ({AGENT_ID}) to {SERVER_URL}...")
-    try:
-        payload = {"agent_id": AGENT_ID, "level_id": LEVEL_TO_PLAY, "ai_model": MODEL_NAME}
-        resp = session.post(f"{SERVER_URL}/start_game", json=payload)
-        
-        if resp.status_code != 200:
-            print(f"❌ Error starting: {resp.text}")
-            return
-        
-        current_state = resp.json()['state']
-        print(f"✅ Game Started: Level {LEVEL_TO_PLAY}")
-        
-    except Exception as e:
-        print(f"❌ Cannot find Green Agent server. {e}")
+   print(f"🟣 Connecting AI Agent ({AGENT_ID}) to {SERVER_URL}...")
+    
+    # --- BLOQUE NUEVO: INTENTAR CONEXIÓN 30 VECES ---
+    connected = False
+    current_state = None
+    
+    for i in range(30): # Intentar durante 60 segundos (30 x 2s)
+        try:
+            payload = {"agent_id": AGENT_ID, "level_id": LEVEL_TO_PLAY, "ai_model": MODEL_NAME}
+            resp = session.post(f"{SERVER_URL}/start_game", json=payload)
+            
+            if resp.status_code == 200:
+                current_state = resp.json()['state']
+                print(f"✅ Game Started: Level {LEVEL_TO_PLAY}")
+                connected = True
+                break # ¡Conectado! Salimos del bucle
+            else:
+                print(f"⚠️ Server Error ({resp.status_code}). Retrying...")
+                time.sleep(2)
+                
+        except Exception as e:
+            # Si falla la conexión, esperamos 2 segundos y probamos de nuevo
+            print(f"⏳ Waiting for Green Agent... ({i+1}/30)")
+            time.sleep(2)
+
+    if not connected:
+        print("❌ Could not connect to Green Agent after multiple attempts.")
         return
+    # ------------------------------------------------
 
     # --- SESSION TOKEN COUNTER ---
     session_total_tokens = 0
