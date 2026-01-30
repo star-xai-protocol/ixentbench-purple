@@ -16,5 +16,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY purple_ai.py .
 
 # 6. Command to run the agent
-# Since the agent acts as a client connecting to the server, we just execute the script.
-CMD ["python", "purple_ai.py"]
+# ⚠️ CAMBIO IMPORTANTE: Usamos ENTRYPOINT para proteger el comando 'python'.
+# Si el sistema envía argumentos extra, se añadirán al final sin romper nada.
+ENTRYPOINT ["python", "purple_ai.py"]
