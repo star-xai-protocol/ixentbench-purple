@@ -405,17 +405,21 @@ def get_ai_move(game_state):
 # =============================================================================
 # 🔌 EXECUTION LOOP
 # =============================================================================
+# =============================================================================
+# 🔌 EXECUTION LOOP
+# =============================================================================
 def main():
     session = requests.Session()
     LEVEL_TO_PLAY = "1"  # Playable levels 1...6
     
-   print(f"🟣 Connecting AI Agent ({AGENT_ID}) to {SERVER_URL}...")
+    # --- BLOQUE DE CONEXIÓN CON REINTENTOS (PACIENCIA) ---
+    print(f"🟣 Connecting AI Agent ({AGENT_ID}) to {SERVER_URL}...")
     
-    # --- BLOQUE NUEVO: INTENTAR CONEXIÓN 30 VECES ---
     connected = False
     current_state = None
     
-    for i in range(30): # Intentar durante 60 segundos (30 x 2s)
+    # Intentamos conectar durante 60 segundos (30 intentos x 2s)
+    for i in range(30):
         try:
             payload = {"agent_id": AGENT_ID, "level_id": LEVEL_TO_PLAY, "ai_model": MODEL_NAME}
             resp = session.post(f"{SERVER_URL}/start_game", json=payload)
@@ -430,14 +434,14 @@ def main():
                 time.sleep(2)
                 
         except Exception as e:
-            # Si falla la conexión, esperamos 2 segundos y probamos de nuevo
+            # Si falla la conexión, esperamos y probamos de nuevo
             print(f"⏳ Waiting for Green Agent... ({i+1}/30)")
             time.sleep(2)
 
     if not connected:
         print("❌ Could not connect to Green Agent after multiple attempts.")
         return
-    # ------------------------------------------------
+    # -----------------------------------------------------
 
     # --- SESSION TOKEN COUNTER ---
     session_total_tokens = 0
@@ -517,8 +521,6 @@ def main():
             else:
                 print(f"   🚫 REJECTED: {data['msg']}")
                 # If the move is illegal, we wait a bit and try again.
-                # (The AI ​​should receive the error on the next turn if we passed it feedback,
-                #but here we simply retry with the same state).
                 time.sleep(2)
                 continue 
 
@@ -527,7 +529,6 @@ def main():
             break
             
         except SystemExit:
-            # Capture the clean output of the get_ai_move function
             raise
             
         except Exception as e:
