@@ -10,7 +10,6 @@ import time
 import json
 import os
 import sys
-import argparse
 from dotenv import load_dotenv
 
 # --- 1. NEW LIBRARY (google.genai) ---
@@ -406,43 +405,25 @@ def get_ai_move(game_state):
 # =============================================================================
 # 🔌 EXECUTION LOOP
 # =============================================================================
-# =============================================================================
-# 🔌 EXECUTION LOOP
-# =============================================================================
 def main():
     session = requests.Session()
     LEVEL_TO_PLAY = "1"  # Playable levels 1...6
     
-    # --- BLOQUE DE CONEXIÓN CON REINTENTOS (PACIENCIA) ---
     print(f"🟣 Connecting AI Agent ({AGENT_ID}) to {SERVER_URL}...")
-    
-    connected = False
-    current_state = None
-    
-    # Intentamos conectar durante 60 segundos (3 intentos x 2s)
-    for i in range(3):
-        try:
-            payload = {"agent_id": AGENT_ID, "level_id": LEVEL_TO_PLAY, "ai_model": MODEL_NAME}
-            resp = session.post(f"{SERVER_URL}/start_game", json=payload)
-            
-            if resp.status_code == 200:
-                current_state = resp.json()['state']
-                print(f"✅ Game Started: Level {LEVEL_TO_PLAY}")
-                connected = True
-                break # ¡Conectado! Salimos del bucle
-            else:
-                print(f"⚠️ Server Error ({resp.status_code}). Retrying...")
-                time.sleep(2)
-                
-        except Exception as e:
-            # Si falla la conexión, esperamos y probamos de nuevo
-            print(f"⏳ Waiting for Green Agent... ({i+1}/30)")
-            time.sleep(2)
-
-    if not connected:
-        print("❌ Could not connect to Green Agent after multiple attempts.")
+    try:
+        payload = {"agent_id": AGENT_ID, "level_id": LEVEL_TO_PLAY, "ai_model": MODEL_NAME}
+        resp = session.post(f"{SERVER_URL}/start_game", json=payload)
+        
+        if resp.status_code != 200:
+            print(f"❌ Error starting: {resp.text}")
+            return
+        
+        current_state = resp.json()['state']
+        print(f"✅ Game Started: Level {LEVEL_TO_PLAY}")
+        
+    except Exception as e:
+        print(f"❌ Cannot find Green Agent server. {e}")
         return
-    # -----------------------------------------------------
 
     # --- SESSION TOKEN COUNTER ---
     session_total_tokens = 0
@@ -522,6 +503,8 @@ def main():
             else:
                 print(f"   🚫 REJECTED: {data['msg']}")
                 # If the move is illegal, we wait a bit and try again.
+                # (The AI ​​should receive the error on the next turn if we passed it feedback,
+                #but here we simply retry with the same state).
                 time.sleep(2)
                 continue 
 
@@ -530,6 +513,7 @@ def main():
             break
             
         except SystemExit:
+            # Capture the clean output of the get_ai_move function
             raise
             
         except Exception as e:
@@ -538,14 +522,4 @@ def main():
             continue
 
 if __name__ == "__main__":
-    # 🛡️ BLINDAJE: Ignoramos los argumentos --host/--port que envía el Leaderboard
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--host", default="0.0.0.0")
-    parser.add_argument("--port", default=9009)
-    parser.add_argument("--card-url", default="")
-    
-    # Tragamos los argumentos y no hacemos nada con ellos
-    args, unknown = parser.parse_known_args()
-    
-    # Arrancamos la lógica real
     main()
