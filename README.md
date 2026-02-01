@@ -35,17 +35,33 @@ Once the inventory is exhausted, the agent activates its **Pre-Move** capability
 * Changes the initial orientation `b` of a specific gear *before* applying the global rotation.
 * This allows the agent to "repair" blocked routes or prepare multiple rescue combos in a single turn.
 
-## 📁 Repository Structure
 
-Based on the actual project layout:
+To optimize your documentation for judges and other developers, here is the refined, graphics-supported version for your Purple Agent README.
 
-```text
-purple-agent-submission/
-├── purple_ai.py            # 🧠 Intelligence Core (Gemini API & Prompt Engineering)
-├── generate_compose.py     # 🛡️ "Vigilante" System (Stability & Timeout Management)
-├── scenario.toml           # Partitions, goals, and move limits
-├── requirements.txt        # Dependencies (google-generativeai, requests, etc.)
-└── results/                # 📊 Final Score JSONs (Efficiency Metrics)
+This version uses instructive tags to suggest where visual diagrams would best explain your technical achievements, such as the "Vigilante" patch system and the cognitive flow of your agent.
+
+🧠 GEMA Purple Agent (Gemini 2.5 Pro)
+This repository contains the logic for the Purple Agent, an advanced AI implementation designed to solve the CapsBench benchmark through neuro-symbolic reasoning and hierarchical planning.
+
+🚀 Design Philosophy
+The Purple Agent does not rely on brute force. Instead, it leverages Gemini 2.5 Pro to execute a Counterfactual Thinking cycle:
+
+Symbolic Perception: Interprets the board state in JSON format.
+
+Mental Simulation: Projects how gear orientations will change after a rotation.
+
+Hypothesis Validation: Verifies if a move generates a valid jump toward the exit.
+
+🛠️ Repository Structure
+Based on the core deployment files:
+```
+purple_ai.py: 🧠 Intelligence Core handling Gemini 2.5 Pro API and Prompt Engineering.
+
+Dockerfile: 🐳 Containerization for consistent evaluation environments.
+
+requirements.txt: 📦 Python dependencies (google-generativeai, requests, etc.).
+
+README.md: 📖 Project documentation.
 
 ```
 
