@@ -4,7 +4,7 @@ Here is the specific **README.md** for the **Purple Agent**. This document is de
 
 # 🧠 GEMA Purple Agent (Gemini 2.5 Pro)
 
-This repository contains the logic for the **Purple Agent**, an advanced AI implementation designed to solve the **CapsBench** benchmark through neuro-symbolic reasoning and hierarchical planning.
+This repository contains the logic for the **Purple Agent**, an advanced AI implementation designed to solve the **iXentBench** benchmark through neuro-symbolic reasoning and hierarchical planning.
 
 ## 🚀 Design Philosophy
 
