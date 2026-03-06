@@ -3,7 +3,7 @@
   
   metadata: {
     agentbeats_id: "019c0b17-335b-7553-8b43-81d097bb5387",
-    name: "purple_agent"
+    name: "Purple-Gemini-2-5-Pro"
   },
 
   // Lo que el Purple NECESITA: Conectarse al Green Agent
